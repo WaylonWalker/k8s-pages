@@ -31,7 +31,7 @@ data:
     
         location / {
             # These rewrites are kept as in your original config.
-            rewrite ^/$ /mypages/mysite/index.html break;
+            rewrite ^/$ /{{ $.Values.bucket }}/{{ .name }}/index.html break;
             rewrite ^(.*)/$ /$1/index.html break;
             
             # Use the parameterized backend URL.
