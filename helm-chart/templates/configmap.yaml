@@ -1,3 +1,4 @@
+{{- define "nginx.configmap" -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -49,3 +50,4 @@ data:
         }
       }
     {{- end }}
+{{- end }}
