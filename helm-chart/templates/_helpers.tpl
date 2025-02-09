@@ -27,14 +27,20 @@ server {
     proxy_hide_header x-minio-deployment-id;
 
     location / {
+        # Remove duplicate slashes
+        merge_slashes on;
+        
         # Handle root path
         rewrite ^/$ /{{ $.Values.bucket }}/{{ .name }}/index.html break;
         
         # Handle static files first (.svg, .min.js, etc)
         rewrite ^/(.*\.(svg|min\.js|js|css|png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot))$ /{{ $.Values.bucket }}/{{ .name }}/$1 break;
         
-        # Handle directory paths (with or without trailing slash)
-        rewrite ^/([^.]+)/?$ /{{ $.Values.bucket }}/{{ .name }}/$1/index.html break;
+        # Normalize paths with trailing slash to no trailing slash
+        rewrite ^/(.*)/$ /$1 permanent;
+        
+        # Handle directory paths
+        rewrite ^/([^.]+)$ /{{ $.Values.bucket }}/{{ .name }}/$1/index.html break;
         
         # Handle all other files
         rewrite ^/(.+)$ /{{ $.Values.bucket }}/{{ .name }}/$1 break;
