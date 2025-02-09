@@ -27,12 +27,17 @@ server {
     proxy_hide_header x-minio-deployment-id;
 
     location / {
-        # These rewrites are kept as in your original config.
+        # Handle root path
         rewrite ^/$ /{{ $.Values.bucket }}/{{ .name }}/index.html break;
-        rewrite ^(.*)/$ /$1/index.html break;
+        # Handle paths without trailing slash
+        rewrite ^/([^.]+)$ /$1/ permanent;
+        # Handle paths with trailing slash
+        rewrite ^/(.+)/$ /{{ $.Values.bucket }}/{{ .name }}/$1/index.html break;
+        # Handle direct file access
+        rewrite ^/(.+)$ /{{ $.Values.bucket }}/{{ .name }}/$1 break;
         
         # Use the parameterized backend URL.
-        proxy_pass {{ .minioURL }}/{{ $.Values.bucket }}/{{ .name }}/;
+        proxy_pass {{ .minioURL }};
         proxy_set_header Host {{ .minioHost }};
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
