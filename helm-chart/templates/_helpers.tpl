@@ -30,10 +30,13 @@ server {
         # Handle root path
         rewrite ^/$ /{{ $.Values.bucket }}/{{ .name }}/index.html break;
         
-        # Handle both /path and /path/ to serve index.html
+        # Handle static files first (.svg, .min.js, etc)
+        rewrite ^/(.*\.(svg|min\.js|js|css|png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot))$ /{{ $.Values.bucket }}/{{ .name }}/$1 break;
+        
+        # Handle directory paths (with or without trailing slash)
         rewrite ^/([^.]+)/?$ /{{ $.Values.bucket }}/{{ .name }}/$1/index.html break;
         
-        # Handle all other files directly
+        # Handle all other files
         rewrite ^/(.+)$ /{{ $.Values.bucket }}/{{ .name }}/$1 break;
         
         # Use the parameterized backend URL.
