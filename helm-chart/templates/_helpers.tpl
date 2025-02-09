@@ -29,11 +29,11 @@ server {
     location / {
         # Handle root path
         rewrite ^/$ /{{ $.Values.bucket }}/{{ .name }}/index.html break;
-        # Handle paths without trailing slash
-        rewrite ^/([^.]+)$ /$1/ permanent;
-        # Handle paths with trailing slash
-        rewrite ^/(.+)/$ /{{ $.Values.bucket }}/{{ .name }}/$1/index.html break;
-        # Handle direct file access
+        
+        # Handle both /path and /path/ to serve index.html
+        rewrite ^/([^.]+)/?$ /{{ $.Values.bucket }}/{{ .name }}/$1/index.html break;
+        
+        # Handle all other files directly
         rewrite ^/(.+)$ /{{ $.Values.bucket }}/{{ .name }}/$1 break;
         
         # Use the parameterized backend URL.
