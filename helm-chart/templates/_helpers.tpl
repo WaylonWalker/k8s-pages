@@ -13,7 +13,7 @@ server {
     gzip_proxied any;
     gzip_comp_level 6;
     gzip_buffers 16 8k;
-    gzip_types text/plain text/html text/css application/json application/javascript application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+    gzip_types text/plain text/html text/css application/json application/javascript application/x-javascript text/xml application/xml application/xml+rss text/javascript image/svg+xml image/webp;
 
     proxy_buffering off;
     proxy_intercept_errors on;
@@ -30,8 +30,9 @@ server {
     rewrite ^/(.*)/$ /$1 permanent;
 
     # Try to serve static files directly first
-    location ~* \.(svg|min\.js|js|css|png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot)$ {
-        rewrite ^/(.*)$ /{{ $.Values.bucket }}/{{ .name }}/$1 break;
+    location ~* \.(svg|webp|png|min\.js|js|css|jpg|jpeg|gif|ico|woff|woff2|ttf|eot)$ {
+        # Don't add the site name to the path since it's already in the bucket structure
+        rewrite ^/(.*)$ /{{ $.Values.bucket }}/wwdev/$1 break;
         proxy_pass {{ .minioURL }};
         proxy_set_header Host {{ .minioHost }};
         add_header Cache-Control "public, max-age={{ $.Values.maxAge }}, stale-while-revalidate={{ $.Values.staleWhileRevalidate }}" always;
@@ -39,13 +40,13 @@ server {
 
     location / {
         # Handle root path
-        rewrite ^/$ /{{ $.Values.bucket }}/{{ .name }}/index.html break;
+        rewrite ^/$ /{{ $.Values.bucket }}/wwdev/index.html break;
         
         # Handle directory paths (without trailing slash since we redirect it above)
-        rewrite ^/([^.]+)$ /{{ $.Values.bucket }}/{{ .name }}/$1/index.html break;
+        rewrite ^/([^.]+)$ /{{ $.Values.bucket }}/wwdev/$1/index.html break;
         
         # Handle all other files
-        rewrite ^/(.+)$ /{{ $.Values.bucket }}/{{ .name }}/$1 break;
+        rewrite ^/(.+)$ /{{ $.Values.bucket }}/wwdev/$1 break;
         
         proxy_pass {{ .minioURL }};
         proxy_set_header Host {{ .minioHost }};
