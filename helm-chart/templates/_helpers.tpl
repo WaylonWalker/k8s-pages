@@ -26,6 +26,9 @@ server {
     proxy_hide_header x-amz-request-id;
     proxy_hide_header x-minio-deployment-id;
 
+    # Redirect trailing slashes
+    rewrite ^/(.*)/$ /$1 permanent;
+
     # Try to serve static files directly first
     location ~* \.(svg|min\.js|js|css|png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot)$ {
         rewrite ^/(.*)$ /{{ $.Values.bucket }}/{{ .name }}/$1 break;
@@ -38,8 +41,8 @@ server {
         # Handle root path
         rewrite ^/$ /{{ $.Values.bucket }}/{{ .name }}/index.html break;
         
-        # Handle directory paths (both with and without trailing slash)
-        rewrite ^/([^.]+)/?$ /{{ $.Values.bucket }}/{{ .name }}/$1/index.html break;
+        # Handle directory paths (without trailing slash since we redirect it above)
+        rewrite ^/([^.]+)$ /{{ $.Values.bucket }}/{{ .name }}/$1/index.html break;
         
         # Handle all other files
         rewrite ^/(.+)$ /{{ $.Values.bucket }}/{{ .name }}/$1 break;
