@@ -31,10 +31,8 @@ server {
 
     # Try to serve static files directly first
     location ~* \.(svg|min\.js|js|css|png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot)$ {
-        set $minio_path "/{{ $.Values.bucket }}/{{ .name }}$uri";
-        add_header X-Debug-Path $minio_path always;
-        
-        proxy_pass {{ .minioURL }}$minio_path;
+        rewrite ^/(.*)$ /{{ $.Values.bucket }}/{{ .name }}/$1 break;
+        proxy_pass {{ .minioURL }};
         proxy_set_header Host {{ .minioHost }};
         add_header Cache-Control "public, max-age={{ $.Values.maxAge }}, stale-while-revalidate={{ $.Values.staleWhileRevalidate }}" always;
     }
