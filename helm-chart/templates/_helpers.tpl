@@ -35,9 +35,26 @@ server {
     }
 
     location / {
-        rewrite /$ ${request_uri}index.html last;
-        proxy_pass {{ .minioURL }}/{{ $.Values.bucket }}/{{ .name }}/;
-        proxy_redirect     off;
+        # Handle root path
+        rewrite ^/$ /{{ $.Values.bucket }}/{{ .name }}/index.html break;
+        
+        # Handle directory paths (both with and without trailing slash)
+        rewrite ^/([^.]+)/?$ /{{ $.Values.bucket }}/{{ .name }}/$1/index.html break;
+        
+        # Handle all other files
+        rewrite ^/(.+)$ /{{ $.Values.bucket }}/{{ .name }}/$1 break;
+        
+        proxy_pass {{ .minioURL }};
+        proxy_set_header Host {{ .minioHost }};
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        proxy_ssl_server_name on;
+        proxy_ssl_verify off;
+        error_page 404 {{ .errorPage }};
+
+        add_header Cache-Control "public, max-age={{ $.Values.maxAge }}, stale-while-revalidate={{ $.Values.staleWhileRevalidate }}" always;
     }
 }
 {{- end }}
