@@ -36,7 +36,7 @@ server {
 
     location / {
         rewrite /$ ${request_uri}index.html last;
-        proxy_pass {{ .minioURL }}/{{ .name }}/;
+        proxy_pass {{ .minioURL }}/{{ $.Values.bucket }}/{{ .name }}/;
         proxy_redirect     off;
     }
 }
