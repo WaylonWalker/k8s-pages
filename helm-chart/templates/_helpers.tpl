@@ -29,23 +29,31 @@ server {
     location / {
         proxy_pass {{ .minioURL }}/{{ $.Values.bucket }}/{{ .name }}/index.html;
         proxy_set_header Host $host;
+        proxy_ssl_server_name on;
+        proxy_ssl_verify off;
     }
 
     # Serve /page as /page/index.html
     location ~ ^/(.+)/$ {
         proxy_pass {{ .minioURL }}/{{ $.Values.bucket }}/{{ .name }}/$1/index.html;
         proxy_set_header Host $host;
+        proxy_ssl_server_name on;
+        proxy_ssl_verify off;
     }
 
     # Serve all assets as-is
     location ~ ^/(.+\..+)$ {
         proxy_pass {{ .minioURL }}/{{ $.Values.bucket }}/{{ .name }}/$1;
         proxy_set_header Host $host;
+        proxy_ssl_server_name on;
+        proxy_ssl_verify off;
     }
 
     # Serve index.html when requesting /page (without redirecting)
     location ~ ^/(.+)$ {
         try_files $uri $uri/ $uri/index.html;
+        proxy_ssl_server_name on;
+        proxy_ssl_verify off;
     }
 }
 {{- end }}
