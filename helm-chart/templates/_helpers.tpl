@@ -25,36 +25,25 @@ server {
 
     proxy_hide_header x-amz-request-id;
     proxy_hide_header x-minio-deployment-id;
-    # Serve index.html by default
+
     location / {
-        proxy_pass {{ .minioURL }}/{{ $.Values.bucket }}/{{ .name }}/index.html;
-        proxy_set_header Host $host;
+        # These rewrites are kept as in your original config.
+        rewrite ^/$ /{{ $.Values.bucket }}/{{ .name }}/index.html break;
+        rewrite ^(.*)/$ /$1/index.html break;
+        
+        # Use the parameterized backend URL.
+        proxy_pass {{ .minioURL }}/{{ $.Values.bucket }}/{{ .name }}/;
+        proxy_set_header Host {{ .minioHost }};
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
         proxy_ssl_server_name on;
         proxy_ssl_verify off;
-    }
+        error_page 404 {{ .errorPage }};
 
-    # Serve /page as /page/index.html
-    location ~ ^/(.+)/$ {
-        proxy_pass {{ .minioURL }}/{{ $.Values.bucket }}/{{ .name }}/$1/index.html;
-        proxy_set_header Host $host;
-        proxy_ssl_server_name on;
-        proxy_ssl_verify off;
+        add_header Cache-Control "public, max-age={{ $.Values.maxAge }}, stale-while-revalidate={{ $.Values.staleWhileRevalidate }}" always;
     }
-
-    # Serve all assets as-is
-    location ~ ^/(.+\..+)$ {
-        proxy_pass {{ .minioURL }}/{{ $.Values.bucket }}/{{ .name }}/$1;
-        proxy_set_header Host $host;
-        proxy_ssl_server_name on;
-        proxy_ssl_verify off;
     }
-
-    # Serve index.html when requesting /page (without redirecting)
-    location ~ ^/(.+)$ {
-        try_files $uri $uri/ $uri/index.html;
-        proxy_ssl_server_name on;
-        proxy_ssl_verify off;
-    }
-}
 {{- end }}
 {{- end }}
