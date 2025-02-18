@@ -29,6 +29,10 @@ server {
     resolver 1.1.1.1 valid=300s ipv6=off;
     proxy_hide_header x-amz-request-id;
     proxy_hide_header x-minio-deployment-id;
+
+    location ~ ^([^.?]*[^/])$ {
+        return 301 $1/;
+    }
     
     location / {
         rewrite ^/$ /{{ $.Values.bucket }}/{{ .name }}/index.html break;
