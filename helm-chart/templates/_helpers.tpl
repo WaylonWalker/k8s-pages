@@ -27,16 +27,12 @@ server {
     proxy_set_header X-Forwarded-Proto $scheme;
     
     resolver 1.1.1.1 valid=300s ipv6=off;
-    proxy_hide_header x-amz-id-2;
     proxy_hide_header x-amz-request-id;
     proxy_hide_header x-minio-deployment-id;
-    proxy_hide_header x-amz-meta-server-side-encryption;
-    proxy_hide_header x-amz-server-side-encryption;
-    proxy_hide_header x-minio-internal-request;
     
     location / {
         rewrite ^/$ /{{ $.Values.bucket }}/{{ .name }}/index.html break;
-        rewrite ^/(.+)/$ /$1/index.html break;
+        rewrite ^/(.+)$ /{{ $.Values.bucket }}/{{ .name }}/$1 break;
         
         proxy_pass {{ .minioURL }}/{{ $.Values.bucket }}/{{ .name }};
         proxy_set_header Host {{ .minioHost }};
