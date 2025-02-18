@@ -27,7 +27,7 @@ server {
 
     # Serve index.html by default
     location / {
-        proxy_pass {{ .minioURL }}/{{ .name }}/index.html;
+        proxy_pass {{ .minioURL }}/{{ $.Values.bucket }}/{{ .name }}/index.html;
         proxy_set_header Host $host;
     }
 
@@ -39,7 +39,7 @@ server {
 
     # Serve all assets as-is
     location ~ ^/(.+\..+)$ {
-        proxy_pass {{ .minioURL }}/{{ .name }}/$1;
+        proxy_pass {{ .minioURL }}/{{ $.Values.bucket }}/{{ .name }}/$1;
         proxy_set_header Host $host;
     }
 
