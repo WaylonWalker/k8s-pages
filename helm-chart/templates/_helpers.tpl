@@ -32,9 +32,9 @@ server {
     
     location / {
         rewrite ^/$ /{{ $.Values.bucket }}/{{ .name }}/index.html break;
-        rewrite ^(.*)/$ /$1/index.html break;
+        rewrite ^/(.+)/$ /$1/index.html break;
         
-        proxy_pass {{ .minioURL }}/{{ $.Values.bucket }}/{{ .name }}/;
+        proxy_pass {{ .minioURL }}/{{ $.Values.bucket }}/{{ .name }};
         proxy_set_header Host {{ .minioHost }};
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -49,4 +49,3 @@ server {
 }
 {{- end }}
 {{- end }}
-
