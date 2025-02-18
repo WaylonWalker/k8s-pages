@@ -32,6 +32,7 @@ server {
     
     location / {
         rewrite ^/$ /{{ $.Values.bucket }}/{{ .name }}/index.html break;
+        rewrite ^/(.+)/$ /{{ $.Values.bucket }}/{{ .name }}/$1/index.html break;
         rewrite ^/(.+)$ /{{ $.Values.bucket }}/{{ .name }}/$1 break;
         
         proxy_pass {{ .minioURL }}/{{ $.Values.bucket }}/{{ .name }};
