@@ -12,19 +12,22 @@ server {
     gzip_proxied any;
     gzip_comp_level 6;
     gzip_buffers 16 8k;
-    gzip_types text/plain text/html text/css application/json application/javascript application/x-javascript text/xml application/xml application/xml+rss text/javascript;
-
+    gzip_types text/plain text/html text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+    
     proxy_buffering off;
     proxy_intercept_errors on;
-
+    proxy_buffer_size 16k;
+    proxy_buffers 4 32k;
+    proxy_busy_buffers_size 64k;
+    
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-
+    
+    resolver 1.1.1.1 valid=300s ipv6=off;
     proxy_hide_header x-amz-request-id;
     proxy_hide_header x-minio-deployment-id;
-
     # Serve index.html by default
     location / {
         proxy_pass {{ .minioURL }}/{{ $.Values.bucket }}/{{ .name }}/index.html;
