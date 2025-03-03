@@ -4,9 +4,14 @@ Generate the content for the NGINX configuration.
 {{- define "nginx.configmap.content" -}}
 {{- range .Values.sites }}
 server {
-    listen 80;
+    {{ if .apex }}
+    server_name {{ .host }};
+    {{ else if .subdomain }}
+    server_name {{ .subdomain }}.{{ .host }};
+    {{ else }}
     server_name {{ .name }}.{{ .host }};
-    
+    {{ end }}
+    listen 80;
     gzip on;
     gzip_disable "msie6";
     gzip_vary on;
