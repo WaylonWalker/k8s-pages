@@ -8,7 +8,13 @@ metadata:
 spec:
   rules:
     {{- range .Values.sites }}
+    {{- if .apex }}
+    - host: {{ .host }}
+    {{- else if .subdomain }}
+    - host: {{ .subdomain }}.{{ .host }}
+    {{- else }}
     - host: {{ .name }}.{{ .host }}
+    {{ end }}
       http:
         paths:
           - path: /
