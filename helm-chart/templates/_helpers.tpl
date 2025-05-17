@@ -53,8 +53,10 @@ server {
         proxy_ssl_server_name on;
         proxy_ssl_verify off;
         error_page 404 {{ .errorPage }};
-        
+
+        proxy_hide_header Cache-Control;
         add_header Cache-Control "public, max-age={{ $.Values.maxAge }}, stale-while-revalidate={{ $.Values.staleWhileRevalidate }}, stale-if-error={{ $.Values.staleIfError }}" always;
+
     }
 }
 {{- end }}
