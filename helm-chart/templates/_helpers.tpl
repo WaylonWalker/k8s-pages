@@ -54,7 +54,7 @@ server {
         proxy_ssl_verify off;
         error_page 404 {{ .errorPage }};
         
-        add_header Cache-Control "public, max-age={{ $.Values.maxAge }}, stale-while-revalidate={{ $.Values.staleWhileRevalidate }}" always;
+        add_header Cache-Control "public, max-age={{ $.Values.maxAge }}, stale-while-revalidate={{ $.Values.staleWhileRevalidate }}, stale-if-error={{ $.Values.staleIfError }}" always;
     }
 }
 {{- end }}
