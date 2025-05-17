@@ -34,7 +34,6 @@ server {
     resolver 1.1.1.1 valid=300s ipv6=off;
     proxy_hide_header x-amz-request-id;
     proxy_hide_header x-minio-deployment-id;
-    proxy_hide_header Cache-Control;
 
     location ~ ^([^.?]*[^/])$ {
         return 301 $1/;
@@ -55,8 +54,8 @@ server {
         proxy_ssl_verify off;
         error_page 404 {{ .errorPage }};
 
-        proxy_hide_header Cache-Control;
-        add_header Cache-Control "public, max-age={{ $.Values.maxAge }}, stale-while-revalidate={{ $.Values.staleWhileRevalidate }}, stale-if-error={{ $.Values.staleIfError }}" always;
+        more_clear_headers Cache-Control;
+        more_set_headers Cache-Control "public, max-age={{ $.Values.maxAge }}, stale-while-revalidate={{ $.Values.staleWhileRevalidate }}, stale-if-error={{ $.Values.staleIfError }}" always;
 
     }
 }
